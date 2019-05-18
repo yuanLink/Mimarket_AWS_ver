@@ -10,6 +10,9 @@ def make_app():
         (r"/", MainHandler),
     ])
 
+settings = {
+	
+}
 if __name__ == "main":
     print("Entering main func")
     app = make_app()

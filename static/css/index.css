@@ -1,0 +1,12 @@
+#buying_process {
+    display: none;
+    position: absolute;
+    margin: auto;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 60%;
+    height: fit-content;
+    background: aqua;
+}
