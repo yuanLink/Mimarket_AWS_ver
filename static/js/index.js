@@ -39,7 +39,7 @@ $('#buy').click(function(){
             }
         } else {
             $.ajax({
-                url: "http://127.0.0.1:9001/buy",
+                url: "/buy",
                 data: $('#buying_form').serialize(),
                 type: "POST",
                 success: function(data) {
