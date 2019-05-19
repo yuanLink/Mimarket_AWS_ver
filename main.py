@@ -3,6 +3,7 @@ import tornado.web
 import os 
 import json
 import urllib
+from Db import *
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
