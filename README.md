@@ -9,7 +9,7 @@ SecKill Homework
 |
 +- Db # data base code
 |
-+- static # some static resource(now we use to save views)
++- static # some static resource(now we use to restore html resource)
 |    |
 |    + - css 
 |    |
@@ -17,9 +17,17 @@ SecKill Homework
 |    |
 |    + - js
 |
-+ - templates
++ - templates # now we use to restore html
 |
 + - main.py # [TODO]: main logic, it may be translated to another directory
 |
 + - views # [TODO]: saving views resource
 ```
+
+## Target
+
+  - [x] Basic web server work
+  - [ ] Communicate with database
+  - [ ] Communicate with redis
+  - [ ] Build it in docker
+  - [ ] Migrate to distributed-ver
