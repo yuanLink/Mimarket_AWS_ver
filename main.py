@@ -1,9 +1,12 @@
+#   -*- coding:utf-8    -*-
+
 import tornado.ioloop
 import tornado.web
 import os 
 import json
 import urllib
 from Db import *
+from Redis import RedisHandle
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -28,6 +31,7 @@ class BuyHandler(tornado.web.RequestHandler):
 		# print(type(param))
 		print(param)
 		self.write("{status:success}")
+
 
 settings = {
 	# "template_path": os.path.join(os.path.dirname(__file__), 'templates')

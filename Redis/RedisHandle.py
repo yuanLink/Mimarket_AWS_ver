@@ -1,34 +1,15 @@
+#   -*- coding:utf-8    -*-
+
 import asyncio
 import aioredis
 import numpy 
 
-# loop = asyncio.get_event_loop()
-
-# async def go():
-# 	conn = await aioredis.create_connection(
-# 		'redis://localhost:', loop=loop)
-# 	await conn.execute('set', 'test-key', 'testvalue')
-# 	val = await conn.execute('get', 'test-key')
-# 	print("now we could get data from {}".format(val))
-# 	conn.close()
-# 	await conn.wait_closed()
-
-# async def go(data):
-# 	redis = await aioredis.create_redis_pool(
-# 		'redis://localhost',
-# 		minsize=5, maxsize=10,
-# 		loop=loop
-# 	)
-# 	await redis.set("Value", data)
-# 	val = await redis.get("Value")
-# 	print(val)
-# 	redis.close()
-# 	await redis.wait_closed()
-
 class RedisHandle():
 
 	def __init__(self):
-		self.loop = asyncio.get_event_loop()
+		self.loop = asyncio.new_event_loop()
+		asyncio.set_event_loop(self.loop)
+		# self.loop = asyncio.get_event_loop()
 		self.redis = None
 
 	async def __go_save_redis(self, key, data):
