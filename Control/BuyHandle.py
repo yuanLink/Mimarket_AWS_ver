@@ -2,6 +2,7 @@
 
 from Redis.RedisHandle import RedisHandle
 import queue
+import json
 
 
 class BasicInfo(object):
@@ -12,11 +13,16 @@ class BasicInfo(object):
     def check_phone(self):
         if len(self.phone) != 11:
             return False
-    
+
+    def get_data(self):
+        return (self.phone, self.addr)
+
     def __str__(self):
         return "Phone:{}, Addr:{}".format(self.phone,self.addr)
 
+
 READY_FOR_REDIS = 10000
+
 class BuyHandle(object):
 
     def __init__(self):
@@ -39,6 +45,39 @@ class BuyHandle(object):
         queue is up to READY_FOR_REDIS, we will write to 
         reids
         """
-        if self.infoQueue.full()
-        self.infoQueue.add(info)
-        self.redisHandle.set_multiple_data()
+        if self.infoQueue.full():
+            multi_data = []
+            while not self.infoQueue.empty():
+                multi_data.append(self.infoQueue.get_nowait())
+
+            self.redisHandle.set_multiple_data(multi_data)
+
+        self.infoQueue.add(info.get_data())
+
+    def fininsh_buy(self):
+        """ insert last of data in queue into the redis
+        """
+        while not self.infoQueue.empty():
+            multi_data.append(self.infoQueue.get_nowait())
+        self.redisHandle.set_multiple_data(multi_data)
+
+
+
+def testcase_buy_handle():
+
+    testcase = []
+    for i in range(1000):
+        phone = str(i).zfill(6)
+        addr = str(i)
+        testcase.append((phone, addr))
+
+    buyHandle = BuyHandle()
+    buyHandle.prepare_buy()
+
+    buyHandle.insert_buy_information(testcase)
+    buyingHandle.fininsh_buy()
+
+
+
+if __name__ == '__main__':
+    buy = BuyHandle()
