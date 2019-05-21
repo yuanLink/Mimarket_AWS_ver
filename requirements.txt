@@ -1,3 +1,5 @@
 tornado
 tornado-redis
+asyncio
+aioredis
 SQLAlchemy
