@@ -6,7 +6,7 @@ import os
 import json
 import urllib
 from Db import *
-from Redis import RedisHandle
+from Control.BuyHandle import BuyHandle, BasicInfo
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -26,10 +26,14 @@ class BuyHandler(tornado.web.RequestHandler):
 		self.write("This handle must be resolve by post")
 
 	def post(self):
+		""" Save phone and address into redis
+		"""
 		param = self.request.body.decode("utf-8")
 		param = self.deserialize_param(param)
 		# print(type(param))
 		print(param)
+		info = BasicInfo(param["address"], param["phone"])
+		
 		self.write("{status:success}")
 
 

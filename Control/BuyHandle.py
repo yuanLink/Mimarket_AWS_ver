@@ -36,7 +36,7 @@ class BuyHandle(object):
         self.redisHandle.connect_redis()
         # [TODO] check return value
 
-    def insert_buy_information(self, info_array):
+    def insert_buy_information(self, info):
         """ insert buying information from website
         info: Basic Information for phone and address
 
@@ -45,19 +45,28 @@ class BuyHandle(object):
         queue is up to READY_FOR_REDIS, we will write to 
         reids
         """
-        for each_info in info_array:
-            # convert to tuple version
-            self.infoQueue.put_nowait(each_info.get_data())
-            if self.infoQueue.full():
-                multi_data = []
-                while not self.infoQueue.empty():
-                    multi_data.append(self.infoQueue.get_nowait())
+        # for each_info in info_array:
+        #     # convert to tuple version
+        #     self.infoQueue.put_nowait(each_info.get_data())
+        #     if self.infoQueue.full():
+        #         multi_data = []
+        #         while not self.infoQueue.empty():
+        #             multi_data.append(self.infoQueue.get_nowait())
 
-                #  now the queue is empty
-                self.redisHandle.set_multiple_data(multi_data)
+        #         #  now the queue is empty
+        #         self.redisHandle.set_multiple_data(multi_data)
         
+        if self.infoQueue.full():
+            multi_data = []
+            while not self.infoQueue.empty():
+                multi_data.append(self.infoQueue.get_nowait())
+
+            #  now the queue is empty
+            self.redisHandle.set_multiple_data(multi_data)
+        
+        self.infoQueue.put_nowait(info.get_data())
         # here we maybe last some data, we will call last_buy to finish it
-        print("[+] now we last {} element".format(self.infoQueue.qsize()))
+        # print("[+] now we last {} element".format(self.infoQueue.qsize()))
 
     def last_buy(self):
         """ insert last of data in queue into the redis
@@ -101,7 +110,8 @@ def testcase_buy_handle():
     buyHandle.prepare_buy()
 
     # saving data in redis
-    buyHandle.insert_buy_information(testcase)
+    for each in testcase:
+        buyHandle.insert_buy_information(each)
     # and we finish buying
     buyHandle.last_buy()
 
