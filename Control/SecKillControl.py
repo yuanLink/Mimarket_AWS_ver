@@ -16,6 +16,7 @@ class SecKillTrigger(object):
         """ use this function to trigger seckill
         """
         self.triggerTime = datetime.now()
+        self.on_sec_kill = True
         print("SEC KILL START AT {}".format(str(self.triggerTime)))
 
     def check_trigger(self):
@@ -24,7 +25,14 @@ class SecKillTrigger(object):
         HAPPEN WITH 10 SEC 
         """
         # [TODO]: use real time to this trigger
-        return True
+        if datetime.now() - self.triggerTime > self.triggerDuring:
+            return False
+        return self.on_sec_kill
+
+    def set_status(self,status):
+        """ [TODO]:update trigger status with config/sql operation/sellout
+        """
+        self.on_sec_kill = status
 
 
 PHONE_NUM = 1000000
@@ -75,14 +83,18 @@ class SecKillDBCommunication(object):
         return True
     
 
+trigger = SecKillTrigger()
+
 def main():
     seckill_db = SecKillDBCommunication()
-    trigger = SecKillTrigger()
     trigger.begin_seckill()
     while trigger.check_trigger():
         # query redis_buffer and write into reids
-        seckill_db.move_data_to_mysql()
+        if not seckill_db.move_data_to_mysql():
+            break
         time.sleep(0.01)
+
+    trigger.set_status(False)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ import json
 import urllib
 from Db import *
 from Control.BuyHandle import BuyHandle, BasicInfo
+from Control.SecKillControl import SecKillTrigger, trigger
 
 g_buyHandler = BuyHandle()
 
@@ -38,9 +39,11 @@ class MainHandler(tornado.web.RequestHandler):
         print(param)
         info = BasicInfo(param["address"], param["phone"])
         # [TODO]: insert information with some trigger
-        g_buyHandler.insert_buy_information(info)
-        
-        self.write("{status:success}")
+        if trigger.check_trigger():
+            g_buyHandler.insert_buy_information(info)
+            self.write("Sec kill success")
+        else:
+            self.write("The sec kill is finish")
 
 # Add new trigger to control buying
 
