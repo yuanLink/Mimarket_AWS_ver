@@ -63,10 +63,13 @@ class RedisHandle(object):
                 data.append((key,tmp))
         return data
 
-    def get_connect_redis(self):
-        """ handle connection to redis
-        """
-        self.loop.run_until_complete(self.__connect_redis())
+    async def __go_flushall_data(self):
+        await self.redis.flushdb()
+
+    # def get_connect_redis(self):
+    #     """ handle connection to redis
+    #     """
+    #     self.loop.run_until_complete(self.__connect_redis())
 
     def save_simple_data(self, key, data):
         """ save data to redis
@@ -101,10 +104,15 @@ class RedisHandle(object):
     def get_all_data(self):
         """ get all data from redis
         """
-        task = self.loop.create_task(self.__go_get_all_data())
-        val_array = self.loop.run_until_complete(task)
+        # task = self.loop.create_task(self.__go_get_all_data())
+        val_array = self.loop.run_until_complete(self.__go_get_all_data())
         # task.cancel()
         return val_array
+
+    def clear_data(self):
+        """ clear all data 
+        """
+        self.loop.run_until_complete(self.__go_flushall_data())
 
     def connect_redis(self, url):
         """ connect redis
@@ -135,6 +143,7 @@ def testcase_for_multiple_data():
     keycase = [each_key[0] for each_key in testcase]
     redisObj = RedisHandle()
     redisObj.connect_redis("localhost")
+    redisObj.clear_data()
     redisObj.set_multiple_data(testcase)
     valuecase = redisObj.get_multiple_data(keycase)
     assert(len(valuecase) == len(keycase))
@@ -157,13 +166,14 @@ def testcase_for_all_data():
     keycase = [each_key[0] for each_key in testcase]
     redisObj = RedisHandle()
     redisObj.connect_redis("localhost")
+    redisObj.clear_data()
     redisObj.set_multiple_data(testcase)
     valuecase = redisObj.get_all_data()
     print(len(valuecase))
     print(len(keycase))
     assert(len(valuecase) == len(keycase))
 
-    print(valuecase)
+    # print(valuecase)
     redisObj.close_redis()
 
 if __name__ == "__main__":
