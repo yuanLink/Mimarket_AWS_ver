@@ -5,6 +5,8 @@ import time
 from Redis.RedisHandle import RedisHandle
 
 class SecKillTrigger(object):
+    """[TODO]: Add some decorator to trigger seckill main function
+    """
     def __init__(self):
         self.on_sec_kill = False
         self.triggerTime = None
@@ -49,7 +51,7 @@ class SecKillDBCommunication(object):
         """ init redis and mysql handle
         [TODO]: read config file here
         """
-        self.redis.connect_redis()
+        self.redis.connect_redis("localhost")
         # self.db
 
     def move_data_to_mysql(self):
@@ -63,6 +65,7 @@ class SecKillDBCommunication(object):
             phone = each_phone[0]
             addr = each_phone[1]
             # [TODO]:write this into db
+            print(each_phone)
             buffer.append(each_phone)
             # update all_phone
             self.all_phone -= 1
@@ -70,18 +73,18 @@ class SecKillDBCommunication(object):
                 return False
         # now write buffer to database
         return True
-
-    def query_redis_buffer(self):
-        """ after triiger ,this function will be query every 3 ms
-        until move_data_to_mysql return False, which mean it sell out,
-        or the trigger tell use the sec kill is finish
-        """
-        while True:
-            res = self.move_data_to_mysql()
-            if res != True:
-                break
-            time.sleep(0.01)
     
 
-        
+def main():
+    seckill_db = SecKillDBCommunication()
+    trigger = SecKillTrigger()
+    trigger.begin_seckill()
+    while trigger.check_trigger():
+        # query redis_buffer and write into reids
+        seckill_db.move_data_to_mysql()
+        time.sleep(0.01)
 
+
+if __name__ == "__main__":
+    # this module need to run utimaltely
+   main() 

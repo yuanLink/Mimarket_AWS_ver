@@ -40,10 +40,10 @@ class RedisHandle(object):
         await self.redis.wait_closed()
 
 
-    async def __connect_redis(self):
+    async def __connect_redis(self, url):
         # redis://host:6379/0?encoding=utf-8
         self.redis = await aioredis.create_redis_pool(
-            'redis://localhost',
+            'redis://{}'.format(url),
             minsize=5, maxsize=10,
             loop=self.loop
         )
@@ -106,10 +106,11 @@ class RedisHandle(object):
         # task.cancel()
         return val_array
 
-    def connect_redis(self):
+    def connect_redis(self, url):
         """ connect redis
+        @param url: the url to redis 
         """
-        self.loop.run_until_complete(self.__connect_redis())
+        self.loop.run_until_complete(self.__connect_redis(url))
 
     def close_redis(self):
         """ close redis connection
@@ -120,7 +121,7 @@ class RedisHandle(object):
 def testcase_for_single_data():
     testcase = ("Value", "data")
     redisObj = RedisHandle()
-    redisObj.connect_redis()
+    redisObj.connect_redis("localhost")
     redisObj.save_simple_data("Value", "data")
     val = redisObj.get_simple_data("Value")
     print(val)
@@ -133,7 +134,7 @@ def testcase_for_multiple_data():
 
     keycase = [each_key[0] for each_key in testcase]
     redisObj = RedisHandle()
-    redisObj.connect_redis()
+    redisObj.connect_redis("localhost")
     redisObj.set_multiple_data(testcase)
     valuecase = redisObj.get_multiple_data(keycase)
     assert(len(valuecase) == len(keycase))
@@ -155,7 +156,7 @@ def testcase_for_all_data():
 
     keycase = [each_key[0] for each_key in testcase]
     redisObj = RedisHandle()
-    redisObj.connect_redis()
+    redisObj.connect_redis("localhost")
     redisObj.set_multiple_data(testcase)
     valuecase = redisObj.get_all_data()
     print(len(valuecase))

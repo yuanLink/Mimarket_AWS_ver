@@ -33,7 +33,7 @@ class BuyHandle(object):
     def prepare_buy(self):
         """ try to prepare for redis 
         """
-        self.redisHandle.connect_redis()
+        self.redisHandle.connect_redis("localhost")
         # [TODO] check return value
 
     def insert_buy_information(self, info):
