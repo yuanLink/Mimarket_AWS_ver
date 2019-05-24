@@ -55,11 +55,13 @@ class SecKillDBCommunication(object):
         self.config = Config()
         self.all_phone = self.config.get_phone_num()
         
-    def init_connect(self):
+    def init_connect(self, url):
         """ init redis and mysql handle
+        @param url: the target redis url
+
         [TODO]: read config file here
         """
-        self.redis.connect_redis("localhost")
+        self.redis.connect_redis(url)
         # self.db
 
     def move_data_to_mysql(self):
@@ -85,8 +87,15 @@ class SecKillDBCommunication(object):
 
 trigger = SecKillTrigger()
 
+def testcase_for_SeckKillDBCommunication():
+    seckill_db = SecKillDBCommunication()
+    seckill_db.init_connect("localhost")
+    seckill_db.move_data_to_mysql()
+
 def main():
     seckill_db = SecKillDBCommunication()
+    seckill_db.init_connect("localhost")
+    
     trigger.begin_seckill()
     while trigger.check_trigger():
         # query redis_buffer and write into reids
@@ -99,4 +108,4 @@ def main():
 
 if __name__ == "__main__":
     # this module need to run utimaltely
-   main() 
+   testcase_for_SeckKillDBCommunication()
