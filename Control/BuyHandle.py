@@ -1,6 +1,7 @@
 #   -*- coding:utf-8    -*-
 
 from Redis.RedisHandle import RedisHandle
+import asyncio
 import queue
 import json
 
@@ -27,7 +28,8 @@ class BuyHandle(object):
 
     def __init__(self):
         self.phone_num = 0
-        self.redisHandle = RedisHandle()
+        loop = asyncio.get_event_loop()
+        self.redisHandle = RedisHandle(loop)
         self.infoQueue = queue.Queue(READY_FOR_REDIS)
 
     def prepare_buy(self):

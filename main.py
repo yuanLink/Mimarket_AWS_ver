@@ -7,9 +7,11 @@ import json
 import urllib
 from Db import *
 from Control.BuyHandle import BuyHandle, BasicInfo
-from Control.SecKillControl import SecKillTrigger, trigger
+from Control.SecKillControl import SecKillTrigger
+from xmlrpc.client import ServerProxy
 
 g_buyHandler = BuyHandle()
+trigger_serv = ServerProxy("http://localhost:15000", allow_none=True)
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
@@ -38,12 +40,21 @@ class MainHandler(tornado.web.RequestHandler):
         # print(type(param))
         print(param)
         info = BasicInfo(param["address"], param["phone"])
-        # [TODO]: insert information with some trigger
-        if trigger.check_trigger():
-            g_buyHandler.insert_buy_information(info)
-            self.write("Sec kill success")
-        else:
+        # [TODO]: insert information with some trgger\
+        print("before checking...")
+        try:
+            if trigger_serv.check_trigger():
+                print("finish check")
+                g_buyHandler.insert_buy_information(info)
+                self.write("Sec kill success")
+            else:
+                g_buyHandler.last_buy()
+                self.write("The sec kill is finish")
+        except ConnectionRefusedError as es:
+            print("check finish")
+            g_buyHandler.last_buy()
             self.write("The sec kill is finish")
+
 
 # Add new trigger to control buying
 

@@ -6,10 +6,10 @@ import numpy
 
 class RedisHandle(object):
 
-    def __init__(self):
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-        # self.loop = asyncio.get_event_loop()
+    def __init__(self, loop):
+        # self.loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(self.loop)
+        self.loop = loop
         self.redis = None
 
     async def __go_save_redis(self, key, data):
@@ -128,7 +128,8 @@ class RedisHandle(object):
 
 def testcase_for_single_data():
     testcase = ("Value", "data")
-    redisObj = RedisHandle()
+    loop = asyncio.get_event_loop()
+    redisObj = RedisHandle(loop)
     redisObj.connect_redis("localhost")
     redisObj.save_simple_data("Value", "data")
     val = redisObj.get_simple_data("Value")
@@ -141,7 +142,8 @@ def testcase_for_multiple_data():
         testcase.append(("test"+str(each), "value"+str(each)))
 
     keycase = [each_key[0] for each_key in testcase]
-    redisObj = RedisHandle()
+    loop = asyncio.get_event_loop()
+    redisObj = RedisHandle(loop)
     redisObj.connect_redis("localhost")
     redisObj.clear_data()
     redisObj.set_multiple_data(testcase)
@@ -164,7 +166,8 @@ def testcase_for_all_data():
         testcase.append(("test"+str(each), "value"+str(each)))
 
     keycase = [each_key[0] for each_key in testcase]
-    redisObj = RedisHandle()
+    loop = asyncio.get_event_loop()
+    redisObj = RedisHandle(loop)
     redisObj.connect_redis("localhost")
     redisObj.clear_data()
     redisObj.set_multiple_data(testcase)
