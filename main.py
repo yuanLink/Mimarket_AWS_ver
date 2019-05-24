@@ -4,11 +4,12 @@ import tornado.ioloop
 import tornado.web
 import os 
 import json
+import string
 import urllib
-from Db import *
 from Control.BuyHandle import BuyHandle, BasicInfo
 from Control.SecKillControl import SecKillTrigger
 from xmlrpc.client import ServerProxy
+from Db.tables import Phone,User
 
 g_buyHandler = BuyHandle()
 trigger_serv = ServerProxy("http://localhost:15000", allow_none=True)
@@ -20,6 +21,39 @@ class IndexHandler(tornado.web.RequestHandler):
         g_buyHandler.prepare_buy()
         self.render("index.html")
 
+class dbHandler(tornado.web.RequestHandler):
+    retjson = {'code': '500', 'contents': 'unknown'}
+    def post(self):
+        user_phone = self.get_argument('User_phone', default='null')
+        user_location = self.get_argument('User_location', default='null')
+        # check
+        phone = self.application.db.query(User).filter(User.User_phone == user_phone).one()
+        if phone:
+            self.retjson['code'] = '200'
+            self.retjson['contents'] = u"this phone number has been used"
+        else:
+            new_user = User(
+                User_phone=user_phone,
+                User_location=user_location
+            )
+            self.application.db.merge(new_user)
+            self.application.db.commit()
+            self.retjson['code'] = '200'
+            self.retjson['contents'] = 'success'
+        self.write(json.dumps(self.retjson, ensure_ascii=False, indent=2))
+        '''
+        if action == 'check': # get number of current
+            phone_num = self.application.db.query(Phone).filter(Phone.phone_name == 'Xiaomi-9').one()
+            self.retjson['code'] = 200
+            self.retjson['contents'] = phone_num
+        if action == 'modify':
+            add_num = self.get_argument('add_num', default='1')
+            phone_num = self.application.db.query(Phone).filter(Phone.phone_name == 'Xiaomi-9').one()
+            add_num_ = string.atoi(add_num)
+            phone_num += add_num_
+            self.retjson['code'] = 200
+            self.retjson['contents'] = phone_num
+        '''
 
 class MainHandler(tornado.web.RequestHandler):
     def deserialize_param(self, params):
