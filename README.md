@@ -40,5 +40,5 @@ SecKill Homework
   - [x] Basic web server work
   - [ ] Communicate with database
   - [x] Communicate with redis
-  - [ ] Build it in docker
+  - [x] Build it in docker
   - [ ] Migrate to distributed-ver
