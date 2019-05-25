@@ -46,6 +46,10 @@ class BuyHandle(object):
         insert all phone and address information, if this 
         queue is up to READY_FOR_REDIS, we will write to 
         reids
+        BUG:midware could not notice redis they ready to flush,
+        if some data in queue,but sec kill is finish, it will lost 
+        this date
+        Version 2. we just write witout queue
         """
         # for each_info in info_array:
         #     # convert to tuple version
@@ -58,15 +62,16 @@ class BuyHandle(object):
         #         #  now the queue is empty
         #         self.redisHandle.set_multiple_data(multi_data)
         
-        if self.infoQueue.full():
-            multi_data = []
-            while not self.infoQueue.empty():
-                multi_data.append(self.infoQueue.get_nowait())
+        self.redisHandle.save_simple_data(info.get_data()[0], info.get_data()[1])
+        # if self.infoQueue.full():
+        #     multi_data = []
+        #     while not self.infoQueue.empty():
+        #         multi_data.append(self.infoQueue.get_nowait())
 
-            #  now the queue is empty
-            self.redisHandle.set_multiple_data(multi_data)
+        #     #  now the queue is empty
+        #     self.redisHandle.set_multiple_data(multi_data)
         
-        self.infoQueue.put_nowait(info.get_data())
+        # self.infoQueue.put_nowait(info.get_data())
         # here we maybe last some data, we will call last_buy to finish it
         # print("[+] now we last {} element".format(self.infoQueue.qsize()))
 
@@ -77,6 +82,7 @@ class BuyHandle(object):
         while not self.infoQueue.empty():
             multi_data.append(self.infoQueue.get_nowait())
         self.redisHandle.set_multiple_data(multi_data)
+        print("flush all data")
 
 
     def check_data(self, phone_array):

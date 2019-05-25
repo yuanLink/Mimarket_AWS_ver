@@ -14,7 +14,7 @@ This string need to be configured (better store passwd in a configuration file):
     mysql+driver://root:passwd@user:port/database_name?
 '''
 DB_USER = "root"
-DB_PASS = "TMmac8.6"
+DB_PASS = "root"
 DB_HOST = "localhost"
 DB_PORT = 3306
 DATABASE = "aws"

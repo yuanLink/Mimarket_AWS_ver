@@ -11,14 +11,26 @@ from Control.SecKillControl import SecKillTrigger
 from xmlrpc.client import ServerProxy
 from Db.tables import Phone,User
 
-g_buyHandler = BuyHandle()
-trigger_serv = ServerProxy("http://localhost:15000", allow_none=True)
+# trigger_serv = ServerProxy("http://localhost:15000", allow_none=True)
+
+class TriggerServQuery(object):
+    def __init__(self):
+        self.trigger_serv = ServerProxy("http://localhost:15000", allow_none=True)
+        self.is_sec_kill = self.trigger_serv.check_trigger()
+
+    def query_trigger(self):
+        # [TODO]:Add Status before_sec, in_sec, after_sec
+        # before_sec and in_sec will query every time bug
+        # after_sec will not query just return false
+        print("now self sec kill is {}".format(self.is_sec_kill))
+        if self.is_sec_kill:
+            self.is_sec_kill = self.trigger_serv.check_trigger()
+        return self.is_sec_kill
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         # self.write("Hello world")
         # [TODO]: update global config in other module
-        g_buyHandler.prepare_buy()
         self.render("index.html")
 
 class dbHandler(tornado.web.RequestHandler):
@@ -77,16 +89,16 @@ class MainHandler(tornado.web.RequestHandler):
         # [TODO]: insert information with some trgger\
         print("before checking...")
         try:
-            if trigger_serv.check_trigger():
+            if trigger_object.query_trigger():
                 print("finish check")
                 g_buyHandler.insert_buy_information(info)
                 self.write("Sec kill success")
             else:
-                g_buyHandler.last_buy()
                 self.write("The sec kill is finish")
+                # g_buyHandler.last_buy()
         except ConnectionRefusedError as es:
-            print("check finish")
-            g_buyHandler.last_buy()
+            print("seckill finish")
+            # g_buyHandler.last_buy()
             self.write("The sec kill is finish")
 
 
@@ -110,6 +122,11 @@ def make_app():
     ], **settings)
 
 # print("test")
+
+trigger_object = TriggerServQuery()
+g_buyHandler = BuyHandle()
+g_buyHandler.prepare_buy()
+
 if __name__ == "__main__":
     print("Entering main func")
     app = make_app()

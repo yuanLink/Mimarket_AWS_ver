@@ -20,7 +20,7 @@ class SecKillTrigger(object):
         self.redis = RedisHandle(loop)
         self.on_sec_kill = False
         self.triggerTime = None
-        self.triggerDuring = 5
+        self.triggerDuring = 30
         self.__serv = SimpleXMLRPCServer(addr, allow_none=True)
         for name in self._rpc_methods_:
             self.__serv.register_function(getattr(self, name))
@@ -43,7 +43,7 @@ class SecKillTrigger(object):
         # print("check data {}".format((datetime.now() - self.triggerTime).seconds))
         if (datetime.now() - self.triggerTime).seconds > self.triggerDuring:
             # print("finish")
-            return False
+            self.on_sec_kill = False
         return self.on_sec_kill
 
     def update_trigger(self):
@@ -61,11 +61,13 @@ class SecKillTrigger(object):
         #     self.redis.save_simple_data("SEC_KILL","START")
 
     def serve_forever(self):
-        while self.check_trigger():
+        while self.on_sec_kill:
             self.__serv.handle_request()
         # handle the final one
-        print("RPC Finish")
         self.__serv.handle_request()
+        print("RPC Finish")
+        return
+        
 
 
 PHONE_NUM = 1000000
@@ -103,12 +105,13 @@ class SecKillDBCommunication(object):
         BECAUSE WE DO NOT HAVE DISTRBUTED-VER, WE JUST USE 
         REDIS TO SYNCHRONIZE DATA
         """
+        # print("move data....")
         data_array = self.redis.get_all_data()
         buffer = []
         ret = True
         for each_phone in data_array:
-            phone = each_phone[0]
-            addr = each_phone[1]
+            phone = each_phone[1]
+            addr = each_phone[0]
             # [TODO]:write this into db
             print(each_phone)
             buffer.append(each_phone)
@@ -135,6 +138,7 @@ def main():
     
     trigger.begin_seckill()
     t1 = threading.Thread(target=trigger.serve_forever)
+    t1.setDaemon(True)
     t1.start()
     while trigger.check_trigger():
         # query redis_buffer and write into reids
@@ -143,8 +147,8 @@ def main():
         time.sleep(0.01)
         trigger.update_trigger()
 
-    print("Finish the Seckill")
     trigger.set_status(False)
+    print("Finish the Seckill")
 
 
 if __name__ == "__main__":
