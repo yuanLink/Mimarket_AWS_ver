@@ -20,7 +20,7 @@ class SecKillTrigger(object):
         self.redis = RedisHandle(loop)
         self.on_sec_kill = False
         self.triggerTime = None
-        self.triggerDuring = 30
+        self.triggerDuring = 3000
         self.__serv = SimpleXMLRPCServer(addr, allow_none=True)
         for name in self._rpc_methods_:
             self.__serv.register_function(getattr(self, name))
